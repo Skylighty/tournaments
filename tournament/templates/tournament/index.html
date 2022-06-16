@@ -26,8 +26,9 @@
         <ul class="main-nav" id="main-nav">
             {% if user.is_authenticated %}
                 <li><a href='#' class="nav-links">Logged as: {{user.get_username}}</a></li>
-                <li><a href="#" class="nav-links">Tournaments</a></li>
                 <li><a href="/create" class="nav-links">Create</a></li>
+                <li><a href="#" class="nav-links">Tournaments</a></li>
+                <li><a href="/manage" class="nav-links">Manage</a></li>
                 <li><a href="/logout" class="nav-links">Logout</a></li>
             {% else %}
                 <li><a href="/register" class="nav-links">Register</a></li>

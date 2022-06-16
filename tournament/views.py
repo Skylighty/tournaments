@@ -1,5 +1,5 @@
 #from re import L
-import datetime
+from django.utils import timezone
 from django.shortcuts import render, redirect
 from tournament.models import Tournament
 from .forms import NewUserForm, TournamentForm
@@ -49,21 +49,18 @@ def logout_request(request):
 def create_tournament(request):
     if request.method == "POST":
         if request.user.is_authenticated:
-            user = User.objects.get(pk=request.user.id)
-            form = TournamentForm(initial={
-                "name":request.POST["name"],
-                "players":request.POST["players"],
-                "belongs_to":user,
-                "date_created": datetime.now()
-                },
-                instance=Tournament)
+            form = TournamentForm(request.POST)
             if form.is_valid():
                 form.save()
                 messages.success(request,f"You've successfully created tournament: {form.cleaned_data.get('name')}!")
                 return redirect("/index")
             else:
                 messages.error(request,"Wrong data!")
-    form = TournamentForm()
+    user = User.objects.get(pk=request.user.id)
+    form = TournamentForm(initial={
+                "belongs_to":user,
+                "start_date": timezone.now()
+                })
     return render(request=request, template_name="tournament/create_tournament.html", context={"create_tournament_form":form})
 
 

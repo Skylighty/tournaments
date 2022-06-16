@@ -13,9 +13,9 @@ class Tournament(models.Model):
     """Tournament object that is related OneToOne to owner, 
     and ManyToMany with players who only play in it"""
     name = models.CharField(max_length=100)
-    players = models.ManyToManyField(Player)
-    belongs_to = models.OneToOneField(User, on_delete=models.CASCADE)
-    date_created = models.DateTimeField('Date created')
+    players = models.ManyToManyField(User)
+    belongs_to = models.OneToOneField(User, related_name='creator', on_delete=models.CASCADE)
+    start_date = models.DateTimeField('Starting on date')
     
     def __str__(self):
         return str(self.name)
