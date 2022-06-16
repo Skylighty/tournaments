@@ -1,6 +1,7 @@
 #from re import L
 from django.utils import timezone
 from django.shortcuts import render, redirect
+from django.views import generic
 from tournament.models import Tournament
 from .forms import NewUserForm, TournamentForm
 from django.contrib.auth import login, authenticate, logout
@@ -70,6 +71,14 @@ def create_tournament(request):
                 })
     return render(request=request, template_name="tournament/create_tournament.html", context={"create_tournament_form":form})
 
+
+def manage_tournaments(request):
+    """Handle redirection to tournament management"""
+    if request.user.is_authenticated:
+        return redirect('/manage')
+    else:
+        messages.error(request, "Only Users can manage their tournaments!")
+        return redirect('/index')
 
 
 def index(request):
