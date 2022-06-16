@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-
+from tournament.models import Tournament
 
 # Create your forms here.
 
@@ -18,3 +18,15 @@ class NewUserForm(UserCreationForm):
 		if commit:
 			user.save()
 		return user
+
+
+class TournamentForm(forms.ModelForm):
+    class Meta:
+        model = Tournament
+        fields = ['name',
+                  'players',
+                  'belongs_to',
+                  'date_created',]
+        
+    #name = forms.CharField(label='Tournament name', max_length=100)
+    

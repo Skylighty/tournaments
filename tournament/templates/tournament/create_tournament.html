@@ -1,7 +1,20 @@
 {% extends 'tournament/index.html'%}
 
+{% load crispy_forms_tags %}
+
 {% block content %}      
 
-{% load crispy_forms_tags %}
+<!--Tournament Form-->
+<div class="container py-5>">
+    <h1>Create Tournament</h1>
+    <p>Please fill the form to create your new Tournament.</p> 
+    <p style="color:red; font-weight: bold;">Players count should be even, because everyone has to have a partner.</p>
+    
+    <form method="POST">
+        {% csrf_token %}
+        {{create_tournament_form|crispy}}
+        <button class="btn btn-primary" type="submit">Create</button>
+    </form>
+</div>
 
 {% endblock %}
