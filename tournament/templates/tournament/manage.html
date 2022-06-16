@@ -1,6 +1,12 @@
 {% extends 'tournament/index.html' %}
 
 {% block content %}
-    
+    <div>
+        <ul class="list-inline justify-content-center">
+            {% for instance in user_tournament_list %}
+                <li class="list-inline-item"><a href = "#">{{instance.name}}</li>
+            {% endfor %}
+        </ul>
+    </div>
 {% endblock %}
 

@@ -1,11 +1,12 @@
 #from re import L
 from django.utils import timezone
 from django.shortcuts import render, redirect
-from django.views import generic
+from django.views.generic import ListView
 from tournament.models import Tournament
 from .forms import NewUserForm, TournamentForm
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
 
@@ -46,11 +47,14 @@ def login_request(request):
     return render(request=request, template_name="tournament/login.html", context={"login_form":form})
 
 
+@login_required
 def logout_request(request):
     logout(request)
     messages.info(request, "You have successfully logged out.")
     return redirect('/index')
 
+
+@login_required
 def create_tournament(request):
     """Handle tournament creation,
     render pre-valued, but hidden option if no POST"""
@@ -72,13 +76,18 @@ def create_tournament(request):
     return render(request=request, template_name="tournament/create_tournament.html", context={"create_tournament_form":form})
 
 
+@login_required
 def manage_tournaments(request):
     """Handle redirection to tournament management"""
-    if request.user.is_authenticated:
-        return redirect('/manage')
-    else:
-        messages.error(request, "Only Users can manage their tournaments!")
-        return redirect('/index')
+    #if request.user.is_authenticated:
+    queryset = Tournament.objects.all()
+    context = {
+        "user_tournament_list": queryset
+    }
+    return render(request=request, template_name="tournament/manage.html", context=context)
+    # else:
+    #     messages.error(request, "Only Users can manage their tournaments!")
+    #     return redirect('/index')
 
 
 def index(request):
