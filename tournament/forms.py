@@ -6,6 +6,7 @@ from tournament.models import Tournament, Player
 # Create your forms here.
 
 class NewUserForm(UserCreationForm):
+    """Usage of built-in register form"""
     email = forms.EmailField(required=True)
 
     class Meta:
@@ -25,6 +26,10 @@ class TournamentForm(forms.ModelForm):
     class Meta:
         model = Tournament
         fields = ['name',
-                  'players',
+                  #'players',
+                  'max_players',
                   'belongs_to',
                   'start_date',]
+        widgets = {
+            'belongs_to': forms.HiddenInput()
+        }

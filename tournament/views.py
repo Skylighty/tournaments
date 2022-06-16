@@ -10,6 +10,8 @@ from django.contrib.auth.forms import AuthenticationForm
 
 
 def register_request(request):
+    """Handle the registration request
+    render empty form if no POST"""
     if request.method == "POST":
         form = NewUserForm(request.POST)
         if form.is_valid():
@@ -23,6 +25,8 @@ def register_request(request):
 
 
 def login_request(request):
+    """Handle login requests
+    render empty form if not POST"""
     if request.method == "POST":
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
@@ -47,6 +51,8 @@ def logout_request(request):
     return redirect('/index')
 
 def create_tournament(request):
+    """Handle tournament creation,
+    render pre-valued, but hidden option if no POST"""
     if request.method == "POST":
         if request.user.is_authenticated:
             form = TournamentForm(request.POST)
