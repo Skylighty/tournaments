@@ -56,6 +56,7 @@ def create_tournament(request):
                 return redirect("/index")
             else:
                 messages.error(request,"Wrong data!")
+                messages.error(request,str(form.errors))
     user = User.objects.get(pk=request.user.id)
     form = TournamentForm(initial={
                 "belongs_to":user,

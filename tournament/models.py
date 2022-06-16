@@ -14,7 +14,7 @@ class Tournament(models.Model):
     and ManyToMany with players who only play in it"""
     name = models.CharField(max_length=100)
     players = models.ManyToManyField(User)
-    belongs_to = models.OneToOneField(User, related_name='creator', on_delete=models.CASCADE)
+    belongs_to = models.ForeignKey(User, related_name='creator', on_delete=models.CASCADE)
     start_date = models.DateTimeField('Starting on date')
     
     def __str__(self):
