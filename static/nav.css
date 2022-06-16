@@ -24,8 +24,20 @@ body {
 
 .nav-links, .logo, .material-icons {
     text-decoration: none;
-    color: ghostwhite;
-    opacity: 0.85;
+    color: rgb(255, 255, 255);
+    opacity: 0.8;
+}
+
+a.nav-links, a.logo {
+    color: rgb(255,255,255);
+    text-decoration: none;
+    opacity: 0.7;
+}
+
+a.nav-links:hover, a.logo:hover {
+    color: rgb(255,255,255);
+    text-decoration: none;
+    opacity: 1.0;
 }
 
 .main-nav li {
