@@ -47,20 +47,21 @@
                       <button type="button"
                               class="btn btn-link btn-rounded btn-sm fw-bold"
                               data-mdb-ripple-color="dark">
-                        View
+                        <a href="{{tournament.id}}/view">View</a>
                       </button>
-                      {% if tournament.belongs_to.username == user.get_username %}
+                        {% if tournament.belongs_to.username == user.get_username %}
                           <button type="button"
                                 class="btn btn-link btn-rounded btn-sm fw-bold"
                                 data-mdb-ripple-color="dark">
-                            <a href="{{tournament.id}}/edit">Edit</a>
-                        </button>
-                        <button type="button"
+                            <a href="{{tournament.id}}/add_player">Add players</a>
+                          </button>
+
+                          <button type="button"
                                 class="btn btn-link btn-rounded btn-sm fw-bold"
                                 data-mdb-ripple-color="dark">
                             <a href="{{tournament.id}}/delete">Delete</a>
-                        </button>
-                      {% endif %}
+                          </button>
+                         {% endif %}
                   </div>
                   </td>
                 </tr>

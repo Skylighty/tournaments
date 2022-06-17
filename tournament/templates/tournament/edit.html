@@ -1,11 +1,5 @@
 {% extends 'tournament/index.html' %}
 
-<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/css/bootstrap-select.css" />
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.bundle.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.13.1/js/bootstrap-select.min.js"></script>
-
 {% load crispy_forms_tags %}
 
 {% block content %}
@@ -13,19 +7,11 @@
 <div class="container py-5>">
     <h1 style="margin-top: 20px;">Edit Tournament</h1>
     <p>Please fill the form to edit your Tournament - {{tournament.name}}.</p> 
-    <form method="post">
+    <form method="POST">
         {% csrf_token %}
-        {{ edit_form.name|as_crispy_field }}
-        {{ edit_form.max_players|as_crispy_field }}
-        {{ edit_form.start_date|as_crispy_field }}
-        <!--{{ edit_form.players|as_crispy_field }}-->
-        <select class="selectpicker" multiple data-live-search="true">
-            {% for uservar in users %}    
-                <option value={{uservar.id}}>{{uservar.username}}</option>
-            {% endfor %}
-        </select>
+        {{ edit_form|crispy }}
         <button type="submit" class="btn btn-outline-success">Save</button>
-        <button class="btn btn-outline-danger"><a href="/index">Cancel</a></button>
-      </form>
+        <button class="btn btn-outline-warning"><a href="/index">Cancel</a></button>
+    </form>
     </div>
 {% endblock %}

@@ -12,7 +12,7 @@ class Player(models.Model):
 
     def __str__(self):
         return str(self.name)
-    
+
 class Tournament(models.Model):
     """Tournament object that is related ForeignKey to owner,
     which means one owner can own many tournaments. 

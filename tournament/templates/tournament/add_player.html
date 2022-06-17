@@ -1,0 +1,24 @@
+{% extends 'tournament/index.html' %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+
+<div class="container py-5>">
+    <h1 style="margin-top: 20px;">Edit Tournament Participants</h1>
+    <p style="color: red; font-weight: bold;">Please add or delete participants one by one! - {{tournament.name}}.</p> 
+    <form method="POST">
+        {% csrf_token %}
+        <form>
+          <select name="user" class="browser-default custom-select">
+            <option selected>Open this select menu</option>
+            {% for uservar in users %}
+              <option value="{{uservar.id}}">{{uservar.username}}</option>
+            {% endfor %}
+          </select>
+        <button type="submit" class="btn btn-outline-success">Add User</button>
+      </form>
+      <button class="btn btn-outline-danger"><a href="/index">Cancel</a></button>
+    </div>
+
+{% endblock %}

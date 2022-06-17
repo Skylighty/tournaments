@@ -1,6 +1,6 @@
 #from re import L
 from django.utils import timezone
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView
 from tournament.models import Tournament
 from .forms import EditTournamentForm, NewUserForm, TournamentForm
@@ -62,13 +62,14 @@ def create_tournament(request):
         if request.user.is_authenticated:
             form = TournamentForm(request.POST)
             if form.is_valid():
-                form.save()
+                form.save_m2m(commit=True)
+                form.save(commit=True)
                 messages.success(request,f"You've successfully created tournament: {form.cleaned_data.get('name')}!")
                 return redirect("/index")
             else:
                 messages.error(request,"Wrong data!")
                 messages.error(request,str(form.errors))
-    user = User.objects.get(pk=request.user.id)
+    user = get_object_or_404(User, pk=request.user.id)
     form = TournamentForm(initial={
                 "belongs_to":user,
                 "start_date": timezone.now()
@@ -108,7 +109,7 @@ def tournament_view(request, tournament_id):
 
 @login_required
 def delete_tournament(request, tournament_id):
-    tournament = Tournament.objects.get(pk=tournament_id)
+    tournament = get_object_or_404(Tournament, pk=tournament_id)
     temp_name = tournament.name
     if request.user.is_authenticated and tournament.belongs_to == request.user.id:
         tournament.delete()
@@ -125,27 +126,27 @@ def delete_tournament(request, tournament_id):
 
 @login_required
 def edit_tournament(request,tournament_id):
-    tournament = Tournament.objects.get(pk=tournament_id)
+    tournament = get_object_or_404(Tournament, pk=tournament_id)
+    tournament.players.clear()
     q2 = User.objects.all()
     if request.method == "POST":
         if request.user.is_authenticated and tournament.belongs_to == request.user.id:
             form = EditTournamentForm(request.POST)
             if form.is_valid():
-                tournament.start_date=request.POST["start_date"]
-                tournament.players_set=(request.POST.get('players'))
-                tournament.max_players=request.POST["max_players"]
-                tournament.update=request.POST["name"]
+                tournament = form.save(commit=False)
                 tournament.save()
+                form.save_m2m()
+                print("zrobilemto")
+                #form.save()
                 messages.success(request, f'Tournament {form.cleaned_data.get("name")} has been saved successfully!')
-                return redirect("/index")
+                return redirect("/manage")
             else:
                 messages.error(request, "Something is wrong!")
                 messages.error(request,str(form.errors))
-    #user = User.objects.get(pk=request.user.id)
+    #user = User.get_object_or_404(pk=request.user.id)
     print(getattr(tournament, "max_players"))
-    form = TournamentForm(initial={
+    form = EditTournamentForm(initial={
                 "start_date": getattr(tournament, "start_date"),
-                "players" : getattr(tournament, "players"),
                 "max_players": getattr(tournament, "max_players"),
                 "name": getattr(tournament, "name"),
                 })
@@ -156,6 +157,28 @@ def edit_tournament(request,tournament_id):
     }
     return render(request=request, template_name="tournament/edit.html", context=context)
 
+@login_required
+def add_player(request, tournament_id):
+    tournament = get_object_or_404(Tournament, pk=tournament_id)
+    users = User.objects.all()
+    if request.method == "POST":
+        print(request.POST.get("user"))
+        if request.user.is_authenticated and tournament.belongs_to == request.user.id:
+            #try:
+                added_user_id = request.POST.get("user")
+                tournament.player_set.add(get_object_or_404(User, pk=added_user_id))
+                messages.success(request, f"User {get_object_or_404(User,pk=added_user_id).username} sucessfully added to tournament {tournament.name}!")
+                return redirect(request, f"{tournament_id}/add_player")     
+            #except:
+                #print(Exception)
+                #messages.error(request, "Something went wrong")
+    context = {
+        "tournament": tournament,
+        "users": users,
+    }
+    return render(request=request, template_name="tournament/add_player.html", context=context)
+    
+    
 def index(request):
     return render(request, "tournament/index.html")
 # Create your views here.
