@@ -2,11 +2,45 @@
 
 {% block content %}
     <div>
-        <ul class="list-inline justify-content-center">
-            {% for instance in user_tournament_list %}
-                <li class="list-inline-item"><a href = "#">{{instance.name}}</li>
-            {% endfor %}
-        </ul>
+        <table class="table align-middle mb-0 bg-white">
+            <thead class="bg-light">
+              <tr>
+                <th>Tournament</th>
+                <th>Owner</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for tournament in user_tournament_list %}
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <img
+                          src="https://img.freepik.com/darmowe-wektory/logo-ligi-tournament-sports-league_1366-202.jpg?w=2000"
+                          class="rounded-circle"
+                          alt=""
+                          style="width: 45px; height: 45px; margin-right: 20px"
+                          />
+                      <div class="ms-3">
+                        <p class="fw-bold mb-1">{{tournament.name}}</p>
+                        <p class="text-muted mb-0">TournamentID: {{tournament.id}}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <p class="fw-bold mb-1">{{tournament.belongs_to.username}}</p>
+                  </td>
+                  <td>
+                    <button type="button"
+                            class="btn btn-link btn-rounded btn-sm fw-bold"
+                            data-mdb-ripple-color="dark">
+                      Edit
+                    </button>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+        </table>
     </div>
 {% endblock %}
 

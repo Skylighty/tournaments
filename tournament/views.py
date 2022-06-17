@@ -80,9 +80,9 @@ def create_tournament(request):
 def manage_tournaments(request):
     """Handle redirection to tournament management"""
     #if request.user.is_authenticated:
-    queryset = Tournament.objects.all()
+    q1 = Tournament.objects.all()
     context = {
-        "user_tournament_list": queryset
+        "user_tournament_list": q1
     }
     return render(request=request, template_name="tournament/manage.html", context=context)
     # else:
