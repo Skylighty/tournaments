@@ -62,8 +62,7 @@ def create_tournament(request):
         if request.user.is_authenticated:
             form = TournamentForm(request.POST)
             if form.is_valid():
-                form.save_m2m(commit=True)
-                form.save(commit=True)
+                form.save()
                 messages.success(request,f"You've successfully created tournament: {form.cleaned_data.get('name')}!")
                 return redirect("/index")
             else:
@@ -111,7 +110,7 @@ def tournament_view(request, tournament_id):
 def delete_tournament(request, tournament_id):
     tournament = get_object_or_404(Tournament, pk=tournament_id)
     temp_name = tournament.name
-    if request.user.is_authenticated and tournament.belongs_to == request.user.id:
+    if request.user.is_authenticated:
         tournament.delete()
         q1 = Tournament.objects.all()
         context = {
@@ -130,7 +129,7 @@ def edit_tournament(request,tournament_id):
     tournament.players.clear()
     q2 = User.objects.all()
     if request.method == "POST":
-        if request.user.is_authenticated and tournament.belongs_to == request.user.id:
+        if request.user.is_authenticated:
             form = EditTournamentForm(request.POST)
             if form.is_valid():
                 tournament = form.save(commit=False)
@@ -157,28 +156,41 @@ def edit_tournament(request,tournament_id):
     }
     return render(request=request, template_name="tournament/edit.html", context=context)
 
+
 @login_required
-def add_player(request, tournament_id):
+def manage_players(request, tournament_id):
     tournament = get_object_or_404(Tournament, pk=tournament_id)
+    tid = str(tournament.id)
     users = User.objects.all()
-    if request.method == "POST":
-        print(request.POST.get("user"))
-        if request.user.is_authenticated and tournament.belongs_to == request.user.id:
-            #try:
-                added_user_id = request.POST.get("user")
-                tournament.player_set.add(get_object_or_404(User, pk=added_user_id))
-                messages.success(request, f"User {get_object_or_404(User,pk=added_user_id).username} sucessfully added to tournament {tournament.name}!")
-                return redirect(request, f"{tournament_id}/add_player")     
-            #except:
-                #print(Exception)
-                #messages.error(request, "Something went wrong")
+    players = tournament.players.all()
+    if request.method == "POST" and "add" in request.POST:
+        if request.user.is_authenticated:
+            added_user_id = request.POST.get("user")
+            tournament.players.add(get_object_or_404(User, pk=added_user_id))
+            tournament.save()
+            messages.success(request, f"User {get_object_or_404(User,pk=added_user_id).username} sucessfully added to tournament {tournament.name}!")
+            #return redirect(request, f"{tid}/add_player")     
+        else:
+            messages.error(request, "User not authenticated!")
+            return redirect(request, 'tournament/index.html')
+    if request.method == "POST" and "remove" in request.POST:
+        if request.user.is_authenticated:
+            added_user_id = request.POST.get("user")
+            tournament.players.remove(get_object_or_404(User, pk=added_user_id))
+            tournament.save()
+            messages.success(request, f"User {get_object_or_404(User,pk=added_user_id).username} removed from tournament {tournament.name}!")
+            #return redirect(request, f"{tid}/add_player")     
+        else:
+            messages.error(request, "User not authenticated!")
+            return redirect(request, 'tournament/index.html')
     context = {
         "tournament": tournament,
         "users": users,
+        "players": players,
     }
-    return render(request=request, template_name="tournament/add_player.html", context=context)
-    
-    
+    return render(request=request, template_name="tournament/manage_players.html", context=context)
+
+
 def index(request):
     return render(request, "tournament/index.html")
 # Create your views here.
