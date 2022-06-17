@@ -29,3 +29,10 @@ class Tournament(models.Model):
     def __str__(self):
         return str(self.name)
 # Create your models here.
+
+class Duel(models.Model):
+    """Data model of a duel between
+    two players"""
+    players = models.ManyToManyField(User)
+    winner = models.OneToOneField(User, related_name='winner', on_delete=models.CASCADE)
+    tournament = models.OneToOneField(Tournament, on_delete=models.CASCADE)
