@@ -110,13 +110,17 @@ def tournament_view(request, tournament_id):
 def delete_tournament(request, tournament_id):
     tournament = Tournament.objects.get(pk=tournament_id)
     temp_name = tournament.name
-    tournament.delete()
-    q1 = Tournament.objects.all()
-    context = {
-        "user_tournament_list": q1,
-    }
-    messages.success(request, f"Tournament: {temp_name} has been successfully deleted.")
-    return render(request=request, template_name="tournament/manage.html", context=context)
+    if request.user.is_authenticated and tournament.belongs_to == request.user.id:
+        tournament.delete()
+        q1 = Tournament.objects.all()
+        context = {
+            "user_tournament_list": q1,
+        }
+        messages.success(request, f"Tournament: {temp_name} has been successfully deleted.")
+        return render(request=request, template_name="tournament/manage.html", context=context)
+    else:
+        messages.error(request, "This is not your tournament!")
+        return render(request=request, template_name="tournament/index.html")
 
 
 @login_required
@@ -124,7 +128,7 @@ def edit_tournament(request,tournament_id):
     tournament = Tournament.objects.get(pk=tournament_id)
     q2 = User.objects.all()
     if request.method == "POST":
-        if request.user.is_authenticated:
+        if request.user.is_authenticated and tournament.belongs_to == request.user.id:
             form = EditTournamentForm(request.POST)
             if form.is_valid():
                 tournament.start_date=request.POST["start_date"]
