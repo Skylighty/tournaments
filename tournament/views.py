@@ -88,7 +88,17 @@ def manage_tournaments(request):
     # else:
     #     messages.error(request, "Only Users can manage their tournaments!")
     #     return redirect('/index')
+    
 
+def all_tournaments_view(request):
+    q1 = Tournament.objects.all()
+    context = {
+        "all_tournaments": q1
+    }
+    return render(request, template_name="tournament/listview.html", context=context)
+
+def tournament_view(request):
+    pass
 
 def index(request):
     return render(request, "tournament/index.html")

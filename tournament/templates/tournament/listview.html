@@ -1,0 +1,72 @@
+{% extends 'tournament/index.html' %}
+
+{% block content %}
+    <div>
+        <table class="table align-middle mb-0 bg-white">
+            <thead class="bg-light">
+              <tr>
+                <th>Tournament</th>
+                <th>Owner</th>
+                <th>Starting on</th>
+                <th>Player count</th>
+                <th>Max player count</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for tournament in all_tournaments %}
+                <tr>
+                  <td>
+                    <div class="d-flex align-items-center">
+                      <img
+                          src="https://img.freepik.com/darmowe-wektory/logo-ligi-tournament-sports-league_1366-202.jpg?w=2000"
+                          class="rounded-circle"
+                          alt=""
+                          style="width: 45px; height: 45px; margin-right: 20px"
+                          />
+                      <div class="ms-3">
+                        <p class="fw-bold mb-1">{{tournament.name}}</p>
+                        <p class="text-muted mb-0">TournamentID: {{tournament.id}}</p>
+                      </div>
+                    </div>
+                  </td>
+                  <td>
+                    <p class="fw-bold mb-1">{{tournament.belongs_to.username}}</p>
+                  </td>
+                  <td>
+                    <p class="fw-bold mb-1">{{tournament.start_date}}</p>
+                  </td>
+                  <td>
+                    <p class="fw-bold mb-1">{{tournament.players.all.count}}</p>
+                  </td>
+                  <td>
+                    <p class="fw-bold mb-1">{{tournament.max_players}}</p>
+                  </td>
+                  <td>
+                    <div class="ms-3">
+                      <button type="button"
+                              class="btn btn-link btn-rounded btn-sm fw-bold"
+                              data-mdb-ripple-color="dark">
+                        View
+                      </button>
+                      {% if tournament.belongs_to.username == user.get_username %}
+                          <button type="button"
+                                class="btn btn-link btn-rounded btn-sm fw-bold"
+                                data-mdb-ripple-color="dark">
+                          Edit
+                        </button>
+                        <button type="button"
+                                class="btn btn-link btn-rounded btn-sm fw-bold"
+                                data-mdb-ripple-color="dark">
+                          Delete
+                        </button>
+                      {% endif %}
+                  </div>
+                  </td>
+                </tr>
+              {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}
+
