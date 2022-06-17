@@ -26,10 +26,15 @@ class TournamentForm(forms.ModelForm):
     class Meta:
         model = Tournament
         fields = ['name',
-                  #'players',
+                  'players',
                   'max_players',
                   'belongs_to',
-                  'start_date',]
+                  'start_date',
+                  'started',
+                  'rounds',]
         widgets = {
-            'belongs_to': forms.HiddenInput()
+            'belongs_to': forms.HiddenInput(),
+            'started': forms.HiddenInput(),
+            'rounds': forms.HiddenInput(),
+            #'players': forms.HiddenInput(),
         }

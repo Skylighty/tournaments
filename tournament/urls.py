@@ -12,4 +12,5 @@ urlpatterns = [
     path("create", views.create_tournament, name="create_tournament"),
     path("manage", views.manage_tournaments, name="manage"),
     path('listview', views.all_tournaments_view, name="all_tournaments"),
+    path('<int:tournament_id>/view', views.tournament_view, name="tournament_view")
 ]

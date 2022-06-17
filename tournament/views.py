@@ -95,10 +95,16 @@ def all_tournaments_view(request):
     context = {
         "all_tournaments": q1
     }
-    return render(request, template_name="tournament/listview.html", context=context)
+    return render(request=request, template_name="tournament/listview.html", context=context)
 
-def tournament_view(request):
-    pass
+
+def tournament_view(request, tournament_id):
+    q1 = Tournament.objects.filter(pk=tournament_id)
+    context = {
+        "tournament" : q1
+    }
+    return render(request=request, template_name="tournament/tournament_view.html", context=context)
+
 
 def index(request):
     return render(request, "tournament/index.html")

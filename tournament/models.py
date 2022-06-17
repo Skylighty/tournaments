@@ -1,4 +1,5 @@
 from faulthandler import disable
+from math import log2
 from tkinter import DISABLED
 from django.db import models
 from django.contrib.auth.models import User
@@ -22,6 +23,8 @@ class Tournament(models.Model):
     max_players = models.PositiveSmallIntegerField(default=2)
     belongs_to = models.ForeignKey(User, related_name='creator', on_delete=models.CASCADE)
     start_date = models.DateTimeField('Starting on date')
+    started = models.BooleanField(verbose_name=('started'), default=False)
+    rounds = models.IntegerField(default=0, blank=True)
     
     def __str__(self):
         return str(self.name)
