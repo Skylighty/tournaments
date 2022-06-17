@@ -1,9 +1,28 @@
 {% extends 'tournament/index.html' %}
-
+{% load bracket_extras %}
 {% block content %}
 <title>{{tourname.name}}</title>
-  {% for uservar in users%}
-    <div class 
+<h1>{{tournament.name}}</h1>
+<main id="tournament">
+  <ul class="round round-1">
+  {% for duel in duels %}
+    <li class="spacer">&nbsp;</li>
+    <li class="game game-top">{{duel.player1}}<span></span></li>
+    <li class="game game-spacer">&nbsp;</li>
+    <li class="game game-bottom">{{duel.player2}}<span></span></li>
   {% endfor %}
+  </ul>
+  <ul class="round round-2">
+    
+
+  </ul>
+  <ul class="round round-3">
+    <li class="spacer">&nbsp;</li>
+    
+    
+  <ul class="round round-4">
+    
+  </ul>   
+</main>
 </div>
 {% endblock %}

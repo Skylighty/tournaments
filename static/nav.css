@@ -49,13 +49,13 @@ a.nav-links:hover, a.logo:hover {
     display: flex;
     font-size: 24px;
     margin-top: 10px;
-    margin-right: 10px;
+    margin-left: 30px;
 }
 
 .logo img {
     height: 50px;
     width: 50px;
-    border-radius: 65px;
+    border-radius: 50px;
 }
 
 .logo p {

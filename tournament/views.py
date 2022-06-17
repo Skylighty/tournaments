@@ -1,8 +1,8 @@
-#from re import L
+import math
 from django.utils import timezone
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView
-from tournament.models import Tournament
+from tournament.models import Tournament, Duel
 from .forms import EditTournamentForm, NewUserForm, TournamentForm
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
@@ -122,6 +122,34 @@ def delete_tournament(request, tournament_id):
         messages.error(request, "This is not your tournament!")
         return render(request=request, template_name="tournament/index.html")
 
+
+# RANDOM ELEMENT! MyModel.objects.order_by('?').first()
+@login_required
+def generate_duels(request, tournament_id):
+    tournament = get_object_or_404(Tournament, pk=tournament_id)
+    #print(random_players)
+    # ---- INITIALIZE ------
+    if not Duel.objects.filter(tournament=tournament):
+        for i in range(0, (2*starting_duels_no), 2):
+            starting_duels_no = int(tournament.max_players/2)
+            random_players = tournament.players.order_by('?')
+            temp = Duel.objects.create(tournament=tournament,
+                player1=random_players[i].username,
+                player2=random_players[i+1].username,
+                max_rounds=starting_duels_no,
+                round=int(1))
+            temp.save()
+            temp.players.add(random_players[i],random_players[i+1])
+    duels = Duel.objects.filter(tournament=tournament)
+    # TODO - iterative viewing on rounds
+    #if Duel.objects.filter(tournament=tournament, round=1):
+    context = {
+        "tournament": tournament,
+        "duels": duels,
+    }
+    return render(request=request, template_name='tournament/tournament_view.html', context=context)
+    
+        
 
 @login_required
 def edit_tournament(request,tournament_id):
