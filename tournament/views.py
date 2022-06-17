@@ -3,7 +3,7 @@ from django.utils import timezone
 from django.shortcuts import render, redirect
 from django.views.generic import ListView
 from tournament.models import Tournament
-from .forms import NewUserForm, TournamentForm
+from .forms import EditTournamentForm, NewUserForm, TournamentForm
 from django.contrib.auth import login, authenticate, logout
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -101,10 +101,56 @@ def all_tournaments_view(request):
 def tournament_view(request, tournament_id):
     q1 = Tournament.objects.filter(pk=tournament_id)
     context = {
-        "tournament" : q1
+        "tournament" : q1,
     }
     return render(request=request, template_name="tournament/tournament_view.html", context=context)
 
+
+@login_required
+def delete_tournament(request, tournament_id):
+    tournament = Tournament.objects.get(pk=tournament_id)
+    temp_name = tournament.name
+    tournament.delete()
+    q1 = Tournament.objects.all()
+    context = {
+        "user_tournament_list": q1,
+    }
+    messages.success(request, f"Tournament: {temp_name} has been successfully deleted.")
+    return render(request=request, template_name="tournament/manage.html", context=context)
+
+
+@login_required
+def edit_tournament(request,tournament_id):
+    tournament = Tournament.objects.get(pk=tournament_id)
+    q2 = User.objects.all()
+    if request.method == "POST":
+        if request.user.is_authenticated:
+            form = EditTournamentForm(request.POST)
+            if form.is_valid():
+                tournament.start_date=request.POST["start_date"]
+                tournament.players_set=(request.POST.get('players'))
+                tournament.max_players=request.POST["max_players"]
+                tournament.update=request.POST["name"]
+                tournament.save()
+                messages.success(request, f'Tournament {form.cleaned_data.get("name")} has been saved successfully!')
+                return redirect("/index")
+            else:
+                messages.error(request, "Something is wrong!")
+                messages.error(request,str(form.errors))
+    #user = User.objects.get(pk=request.user.id)
+    print(getattr(tournament, "max_players"))
+    form = TournamentForm(initial={
+                "start_date": getattr(tournament, "start_date"),
+                "players" : getattr(tournament, "players"),
+                "max_players": getattr(tournament, "max_players"),
+                "name": getattr(tournament, "name"),
+                })
+    context = {
+        "tournament": tournament,
+        "users": q2,
+        "edit_form": form,
+    }
+    return render(request=request, template_name="tournament/edit.html", context=context)
 
 def index(request):
     return render(request, "tournament/index.html")

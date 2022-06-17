@@ -4,6 +4,7 @@ from django.contrib.auth.models import User
 from tournament.models import Tournament, Player
 
 # Create your forms here.
+PLAYER_COUNT_CHOICES=[tuple([x,x]) for x in [2,4,8,16]]
 
 class NewUserForm(UserCreationForm):
     """Usage of built-in register form"""
@@ -20,9 +21,8 @@ class NewUserForm(UserCreationForm):
             user.save()
         return user
 
-
+#TODO - validate if Player.count <= max_players
 class TournamentForm(forms.ModelForm):
-    
     class Meta:
         model = Tournament
         fields = ['name',
@@ -33,8 +33,16 @@ class TournamentForm(forms.ModelForm):
                   'started',
                   'rounds',]
         widgets = {
+            'max_players': forms.Select(choices=PLAYER_COUNT_CHOICES),
             'belongs_to': forms.HiddenInput(),
             'started': forms.HiddenInput(),
             'rounds': forms.HiddenInput(),
-            #'players': forms.HiddenInput(),
+            'players': forms.SelectMultiple(),
         }
+        
+        
+class EditTournamentForm(forms.Form):
+    name = forms.CharField(max_length=100)
+    max_players = forms.IntegerField(widget=forms.Select(choices=PLAYER_COUNT_CHOICES))
+    start_date = forms.DateTimeField()
+    players = forms.SelectMultiple()

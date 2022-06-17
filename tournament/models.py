@@ -20,7 +20,7 @@ class Tournament(models.Model):
     Player invitation is initially skipped"""
     name = models.CharField(max_length=100)
     players = models.ManyToManyField(User, blank=True)
-    max_players = models.PositiveSmallIntegerField(default=2)
+    max_players = models.IntegerField(default=2, validators=[MaxValueValidator(16), MinValueValidator(2)])
     belongs_to = models.ForeignKey(User, related_name='creator', on_delete=models.CASCADE)
     start_date = models.DateTimeField('Starting on date')
     started = models.BooleanField(verbose_name=('started'), default=False)

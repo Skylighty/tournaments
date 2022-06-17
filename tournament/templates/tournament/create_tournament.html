@@ -8,7 +8,8 @@
 <div class="container py-5>">
     <h1 style="margin-top: 20px;">Create Tournament</h1>
     <p>Please fill the form to create your new Tournament.</p> 
-    <p style="color:red; font-weight: bold;">Players count should be even, because everyone has to have a partner!</p>
+    <p style="color:green; font-weight: bold;">Players count MUST BE EVEN and in [2,4,8,16], because everyone has to have a partner!</p>
+    <p style="color:red; font-weight: bold;">Maximum number of players to set is 16!</p>
     
     <form method="POST">
         {% csrf_token %}
