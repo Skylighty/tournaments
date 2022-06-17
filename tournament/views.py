@@ -130,11 +130,9 @@ def edit_tournament(request,tournament_id):
     q2 = User.objects.all()
     if request.method == "POST":
         if request.user.is_authenticated:
-            form = EditTournamentForm(request.POST)
+            form = EditTournamentForm(request.POST, instance=tournament)
             if form.is_valid():
-                tournament = form.save(commit=False)
-                tournament.save()
-                form.save_m2m()
+                form.save()
                 print("zrobilemto")
                 #form.save()
                 messages.success(request, f'Tournament {form.cleaned_data.get("name")} has been saved successfully!')
@@ -147,7 +145,9 @@ def edit_tournament(request,tournament_id):
     form = EditTournamentForm(initial={
                 "start_date": getattr(tournament, "start_date"),
                 "max_players": getattr(tournament, "max_players"),
+                "belongs_to": getattr(tournament, "belongs_to"),
                 "name": getattr(tournament, "name"),
+                "players": tournament.players.all()
                 })
     context = {
         "tournament": tournament,

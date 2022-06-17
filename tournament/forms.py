@@ -57,6 +57,5 @@ class EditTournamentForm(forms.ModelForm):
             'belongs_to': forms.HiddenInput(),
             'started': forms.HiddenInput(),
             'rounds': forms.HiddenInput(),
-            
         }
 
