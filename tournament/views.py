@@ -64,7 +64,7 @@ def create_tournament(request):
             if form.is_valid():
                 form.save()
                 messages.success(request,f"You've successfully created tournament: {form.cleaned_data.get('name')}!")
-                return redirect("/index")
+                return redirect("/manage")
             else:
                 messages.error(request,"Wrong data!")
                 messages.error(request,str(form.errors))
@@ -117,7 +117,7 @@ def delete_tournament(request, tournament_id):
             "user_tournament_list": q1,
         }
         messages.success(request, f"Tournament: {temp_name} has been successfully deleted.")
-        return render(request=request, template_name="tournament/manage.html", context=context)
+        return redirect("/manage")
     else:
         messages.error(request, "This is not your tournament!")
         return render(request=request, template_name="tournament/index.html")
@@ -127,12 +127,14 @@ def delete_tournament(request, tournament_id):
 @login_required
 def generate_duels(request, tournament_id):
     tournament = get_object_or_404(Tournament, pk=tournament_id)
-    #print(random_players)
     # ---- INITIALIZE ------
     if not Duel.objects.filter(tournament=tournament):
+        # Convert QuerySet to list, so query doesn't db-level sort
+        # everytime it's accessed
+        random_players = list(tournament.players.order_by('?'))
+        starting_duels_no = int(tournament.max_players/2)
+        # Initialize random and unique starting duels 
         for i in range(0, (2*starting_duels_no), 2):
-            starting_duels_no = int(tournament.max_players/2)
-            random_players = tournament.players.order_by('?')
             temp = Duel.objects.create(tournament=tournament,
                 player1=random_players[i].username,
                 player2=random_players[i+1].username,

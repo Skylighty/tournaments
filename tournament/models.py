@@ -33,7 +33,7 @@ class Tournament(models.Model):
 class Duel(models.Model):
     """Data model of a duel between
     two players"""
-    players = models.ManyToManyField(User, null=True, blank=True)
+    players = models.ManyToManyField(User, blank=True)
     winner = models.OneToOneField(User, related_name='winner', null=True,on_delete=models.CASCADE, blank=True)
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE)
     player1 = models.CharField(max_length=100, blank=True)
