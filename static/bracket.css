@@ -1,6 +1,6 @@
 body {
   font-family: 'Istok Web', sans-serif;
-  background: url("http://picjumbo.com/wp-content/uploads/HNCK2189-1300x866.jpg") no-repeat #000;
+  background: black;
   background-size: cover;
   min-height: 100%;
   margin: 0;
@@ -26,7 +26,7 @@ body {
 .hero p {
   font-family: 'Abel', sans-serif;
   text-transform: uppercase;
-  color: #5CCA87;
+  color: #0064e7;
   letter-spacing: 6px;
   text-shadow: 0 0 12px rgba(0, 0, 0, 0.5);
   font-size: 1.2em;
@@ -87,7 +87,7 @@ body {
   display: -ms-flexbox;
   display: -webkit-flex;
   display: flex;
-  width: 42%;
+  width: 100%;
   -webkit-flex-direction: row;
   -moz-flex-direction: row;
   flex-direction: row;
@@ -146,7 +146,7 @@ body {
 }
 
 .score {
-  font-size: 11px;
+  font-size: 20px;
   text-transform: uppercase;
   float: right;
   color: #2C7399;
@@ -164,18 +164,25 @@ body {
   white-space: nowrap;
   overflow: hidden;
   position: relative;
+  font-size: 17px;
 }
 
 .round-two .matchup {
   margin: 0;
   height: 60px;
-  padding: 50px 0;
+  padding: 55px 0;
 }
 
 .round-three .matchup {
   margin: 0;
   height: 60px;
-  padding: 130px 0;
+  padding: 100px 0;
+}
+
+.round-four .matchup {
+  margin: 0;
+  height: 60px;
+  padding: 210px 0;
 }
 
 .round-details {
@@ -298,6 +305,7 @@ body {
 }
 
 .date {
+  margin: 30px;
   font-size: 10px;
   letter-spacing: 2px;
   font-family: 'Istok Web', sans-serif;
@@ -382,7 +390,7 @@ body {
   }
 
   .round {
-    width: 21%;
+    width: 210%;
   }
 
   .current {

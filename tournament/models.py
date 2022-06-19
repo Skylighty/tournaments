@@ -25,6 +25,8 @@ class Tournament(models.Model):
     start_date = models.DateTimeField('Starting on date')
     started = models.BooleanField(verbose_name=('started'), default=False)
     rounds = models.IntegerField(default=0, blank=True)
+    champion = models.ForeignKey(User, related_name='won_by', null=True, on_delete=models.CASCADE, blank=True)
+    current_round = models.IntegerField(default=1)
     
     def __str__(self):
         return str(self.name)

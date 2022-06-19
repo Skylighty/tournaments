@@ -32,13 +32,17 @@ class TournamentForm(forms.ModelForm):
                   'belongs_to',
                   'start_date',
                   'started',
-                  'rounds',]
+                  'rounds',
+                  'champion',
+                  'current_round']
         widgets = {
             'max_players': forms.Select(choices=PLAYER_COUNT_CHOICES),
             'belongs_to': forms.HiddenInput(),
             'started': forms.HiddenInput(),
             'rounds': forms.HiddenInput(),
             'players': forms.SelectMultiple(),
+            'champion': forms.HiddenInput(),
+            'current_round': forms.HiddenInput(),
         }
         
         
@@ -51,11 +55,14 @@ class EditTournamentForm(forms.ModelForm):
                   'belongs_to',
                   'start_date',
                   'started',
-                  'rounds',]
+                  'rounds',
+                  'champion',]
         widgets = {
             'max_players': forms.Select(choices=PLAYER_COUNT_CHOICES),
             'belongs_to': forms.HiddenInput(),
             'started': forms.HiddenInput(),
             'rounds': forms.HiddenInput(),
+            'champion': forms.HiddenInput(),
+            'current_round': forms.HiddenInput(),
         }
 

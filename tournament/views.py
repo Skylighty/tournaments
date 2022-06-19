@@ -152,6 +152,7 @@ def generate_duels(request, tournament_id):
                 duels[i].save()
                 duels[i+1].save()
         tournament.rounds = log2(tournament.max_players)
+        tournament.current_round = 1
         tournament.save()
     else:
         for i in range(1, int(tournament.rounds-1)):
@@ -174,6 +175,8 @@ def generate_duels(request, tournament_id):
 @login_required
 def update_round(request, tournament_id, round_to_be_updated):
     tournament = get_object_or_404(Tournament, pk=tournament_id)
+    tournament.current_round = round_to_be_updated
+    tournament.save()
     duels = list(Duel.objects.filter(tournament=tournament, round=round_to_be_updated-1))
     #next_round_duels_no = len(duels)/2
     #for i in range(next_round_duels_no):
@@ -196,7 +199,7 @@ def update_round(request, tournament_id, round_to_be_updated):
             new_duel.save()
     duels = list(Duel.objects.filter(tournament=tournament, round=round_to_be_updated))
     for i in range(len(duels)):
-        if i % 2 == 0:
+        if i % 2 == 0 and len(duels) > 1:
                 duels[i].paired = duels[i+1]
                 duels[i+1].paired = duels[i]
                 duels[i].save()
@@ -206,10 +209,15 @@ def update_round(request, tournament_id, round_to_be_updated):
 
 @login_required
 def set_duel_winner(request, tournament_id, duel_id, user_id):
+    tournament = get_object_or_404(Tournament, pk=tournament_id)
     duel = get_object_or_404(Duel, pk=duel_id)
     if not duel.winner:
         duel.winner = get_object_or_404(User, pk=user_id)
         duel.save()
+    duels = list(Duel.objects.filter(tournament=tournament, round=duel.round))
+    if len(duels) == 1:
+        tournament.champion = duel.winner
+        tournament.save()
     return redirect(f'/{tournament_id}/generate')
         
 
