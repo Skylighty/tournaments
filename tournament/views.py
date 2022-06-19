@@ -1,4 +1,4 @@
-import math
+from math import log2
 from django.utils import timezone
 from django.shortcuts import render, redirect, get_object_or_404
 from django.views.generic import ListView
@@ -136,12 +136,31 @@ def generate_duels(request, tournament_id):
         # Initialize random and unique starting duels 
         for i in range(0, (2*starting_duels_no), 2):
             temp = Duel.objects.create(tournament=tournament,
-                player1=random_players[i].username,
-                player2=random_players[i+1].username,
+                player1=random_players[i],
+                player2=random_players[i+1],
                 max_rounds=starting_duels_no,
+                passed=False,
                 round=int(1))
             temp.save()
             temp.players.add(random_players[i],random_players[i+1])
+            temp.save()
+        duels = list(Duel.objects.filter(tournament=tournament))
+        for i in range(len(duels)):
+            if i % 2 == 0:
+                duels[i].paired = duels[i+1]
+                duels[i+1].paired = duels[i]
+                duels[i].save()
+                duels[i+1].save()
+        tournament.rounds = log2(tournament.max_players)
+        tournament.save()
+    else:
+        for i in range(1, int(tournament.rounds-1)):
+            if (Duel.objects.filter(tournament=tournament, round=i).filter(winner=None).exists() is False
+                and Duel.objects.filter(tournament=tournament, round=i).exists() is True
+                and Duel.objects.filter(tournament=tournament, round=(i+1)).exists() is False):
+                return redirect(f'/{tournament.id}/{i+1}/update_round')
+            else:
+                continue            
     duels = Duel.objects.filter(tournament=tournament)
     # TODO - iterative viewing on rounds
     #if Duel.objects.filter(tournament=tournament, round=1):
@@ -150,7 +169,48 @@ def generate_duels(request, tournament_id):
         "duels": duels,
     }
     return render(request=request, template_name='tournament/tournament_view.html', context=context)
-    
+
+
+@login_required
+def update_round(request, tournament_id, round_to_be_updated):
+    tournament = get_object_or_404(Tournament, pk=tournament_id)
+    duels = list(Duel.objects.filter(tournament=tournament, round=round_to_be_updated-1))
+    #next_round_duels_no = len(duels)/2
+    #for i in range(next_round_duels_no):
+    for duel in duels:
+        if duel.passed is False and duel.paired.passed is False:
+            new_duel = Duel.objects.create(tournament=tournament,
+            player1=duel.winner,
+            player2=duel.paired.winner,
+            round=round_to_be_updated,
+            passed=False)
+            duel.passed = True
+            duel.paired.passed = True
+            new_duel.save()
+            duel.save()
+            duel.paired.save()
+            new_duel.players.add(duel.winner)
+            new_duel.players.add(duel.paired.winner)
+            new_duel.previous.add(duel)
+            new_duel.previous.add(duel.paired)
+            new_duel.save()
+    duels = list(Duel.objects.filter(tournament=tournament, round=round_to_be_updated))
+    for i in range(len(duels)):
+        if i % 2 == 0:
+                duels[i].paired = duels[i+1]
+                duels[i+1].paired = duels[i]
+                duels[i].save()
+                duels[i+1].save()
+    return redirect(f'/{tournament.id}/generate')
+
+
+@login_required
+def set_duel_winner(request, tournament_id, duel_id, user_id):
+    duel = get_object_or_404(Duel, pk=duel_id)
+    if not duel.winner:
+        duel.winner = get_object_or_404(User, pk=user_id)
+        duel.save()
+    return redirect(f'/{tournament_id}/generate')
         
 
 @login_required
@@ -163,8 +223,6 @@ def edit_tournament(request,tournament_id):
             form = EditTournamentForm(request.POST, instance=tournament)
             if form.is_valid():
                 form.save()
-                print("zrobilemto")
-                #form.save()
                 messages.success(request, f'Tournament {form.cleaned_data.get("name")} has been saved successfully!')
                 return redirect("/manage")
             else:
@@ -190,7 +248,7 @@ def edit_tournament(request,tournament_id):
 @login_required
 def manage_players(request, tournament_id):
     tournament = get_object_or_404(Tournament, pk=tournament_id)
-    tid = str(tournament.id)
+    #tid = str(tournament.id)
     users = User.objects.all()
     players = tournament.players.all()
     if request.method == "POST" and "add" in request.POST:
@@ -202,7 +260,7 @@ def manage_players(request, tournament_id):
             #return redirect(request, f"{tid}/add_player")     
         else:
             messages.error(request, "User not authenticated!")
-            return redirect(request, 'tournament/index.html')
+            return redirect(f'/{tournament_id}/players')
     if request.method == "POST" and "remove" in request.POST:
         if request.user.is_authenticated:
             added_user_id = request.POST.get("user")
@@ -212,7 +270,7 @@ def manage_players(request, tournament_id):
             #return redirect(request, f"{tid}/add_player")     
         else:
             messages.error(request, "User not authenticated!")
-            return redirect(request, 'tournament/index.html')
+            return redirect(f'/{tournament_id}/players')
     context = {
         "tournament": tournament,
         "users": users,

@@ -34,9 +34,13 @@ class Duel(models.Model):
     """Data model of a duel between
     two players"""
     players = models.ManyToManyField(User, blank=True)
-    winner = models.OneToOneField(User, related_name='winner', null=True,on_delete=models.CASCADE, blank=True)
+    winner = models.ForeignKey(User, related_name='winner', null=True,on_delete=models.CASCADE, blank=True)
+    paired = models.ForeignKey('self', related_name='pair', null=True, on_delete=models.CASCADE, blank=True)
     tournament = models.ForeignKey(Tournament, on_delete=models.CASCADE)
-    player1 = models.CharField(max_length=100, blank=True)
-    player2 = models.CharField(max_length=100, blank=True)
+    player1 = models.ForeignKey(User, related_name='player1', on_delete=models.CASCADE, max_length=100, blank=True)
+    player2 = models.ForeignKey(User, related_name='player2', on_delete=models.CASCADE, max_length=100, blank=True)
+    previous = models.ManyToManyField('self', blank=True)
     max_rounds = models.IntegerField(default=1)
+    passed = models.BooleanField(default=False)
     round = models.IntegerField(default=1)
+

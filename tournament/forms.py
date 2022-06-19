@@ -9,7 +9,7 @@ PLAYER_COUNT_CHOICES=[tuple([x,x]) for x in [2,4,8,16]]
 
 class NewUserForm(UserCreationForm):
     """Usage of built-in register form"""
-    email = forms.EmailField(required=True)
+    email = forms.EmailField(required=False)
 
     class Meta:
         model = User

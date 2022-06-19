@@ -2,31 +2,48 @@
 {% load bracket_extras %}
 
 {% block extra_head %}
-  {% load static %}
-  <meta charset="utf-8">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
-  <link href="https://fonts.googleapis.com/css?family=Holtwood+One+SC" rel="stylesheet" type="text/css">
-  <link href="https://fonts.googleapis.com/css?family=Kaushan+Script|Herr+Von+Muellerhoff" rel="stylesheet" type="text/css">
-  <link href="https://fonts.googleapis.com/css?family=Abel" rel="stylesheet" type="text/css">
-  <link href="https://fonts.googleapis.com/css?family=Istok+Web|Roboto+Condensed:700" rel="stylesheet" type="text/css">
-  <link href="{% static 'bracket.css' %}" rel="stylesheet">
+{% load static %}
+<meta charset="utf-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<link href="https://maxcdn.bootstrapcdn.com/font-awesome/4.2.0/css/font-awesome.min.css" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css?family=Holtwood+One+SC" rel="stylesheet" type="text/css">
+<link href="https://fonts.googleapis.com/css?family=Kaushan+Script|Herr+Von+Muellerhoff" rel="stylesheet"
+  type="text/css">
+<link href="https://fonts.googleapis.com/css?family=Abel" rel="stylesheet" type="text/css">
+<link href="https://fonts.googleapis.com/css?family=Istok+Web|Roboto+Condensed:700" rel="stylesheet" type="text/css">
+<link href="{% static 'bracket.css' %}" rel="stylesheet">
 {% endblock %}
 {% block content %}
 <title>{{tourname.name}}</title>
 <section id="bracket">
   <div class="container">
-  <div class="split split-one">
-    <div class="round round-one current">
-      <div class="round-details">Round 1<br/><span class="date">{{tournament.start_date}}</span></div>
-      {% for duel in duels %}
-      <ul class="matchup">
-        <li class="team team-top">{{duel.player1}}<span class="score"></span></li>
-        <li class="team team-bottom">{{duel.player2}}<span class="score"></span></li>
-      </ul>
-      {% endfor %}
+    <div class="split split-one">
+      <div class="round round-one current">
+        <div class="round-details">Round 1<br /><span class="date">{{tournament.start_date}}</span></div>
+        {% for duel in duels %}
+        <ul class="matchup">
+          {% if duel.winner.id == duel.player1.id %}
+            <li value="{{duel.player1.id}}" class="team winner team-top">{{duel.player1.username}}<span class="score"></span>
+            </li>
+            <li value="{{duel.player2.id}}" class="team loser team-bottom">{{duel.player2.username}}<span class="score"></span>
+            </li>
+          {% elif duel.winner.id == duel.player2.id %}
+            <li value="{{duel.player1.id}}" class="team loser team-top">{{duel.player1.username}}<span class="score"></span>
+            </li>
+            <li value="{{duel.player2.id}}" class="team winner team-bottom">{{duel.player2.username}}<span
+                class="score"></span>
+            </li>
+          {% else %}
+            <li value="{{duel.player1.id}}" class="team team-top"><a
+                href="{{duel.id}}/{{duel.player1.id}}/set_winner">{{duel.player1.username}}</a><span class="score"></span>
+            </li>
+            <li value="{{duel.player2.id}}" class="team team-bottom"><a
+                href="{{duel.id}}/{{duel.player2.id}}/set_winner">{{duel.player2.username}}</a><span class="score"></span>
+          {% endif %}
+        </ul>
+        {% endfor %}
+      </div>
     </div>
-  </div>
 </section>
 {% endblock %}

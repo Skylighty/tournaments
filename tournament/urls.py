@@ -17,4 +17,6 @@ urlpatterns = [
     path('<int:tournament_id>/delete', views.delete_tournament, name="tournament_delete"),
     path('<int:tournament_id>/players', views.manage_players, name="manage_players"),
     path('<int:tournament_id>/generate', views.generate_duels, name="generate_duels"),
+    path('<int:tournament_id>/<int:duel_id>/<int:user_id>/set_winner', views.set_duel_winner, name="set_duel_winner"),
+    path('<int:tournament_id>/<int:round_to_be_updated>/update_round', views.update_round, name="update_round"),
 ]
