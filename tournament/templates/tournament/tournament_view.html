@@ -15,7 +15,6 @@
 <link href="{% static 'bracket.css' %}" rel="stylesheet">
 {% endblock %}
 {% block content %}
-
 <header class="hero">
   <div class="hero-wrap">
    <p class="intro" id="intro">wsb</p>
@@ -31,66 +30,38 @@
     <div class="split split-one">
       <div class="round round-one current">
         <div class="round-details">Round 1<br /><span class="date">{{tournament.start_date}}</span></div>
-        {% for duel in duels %}
-          <ul class="matchup">
+          {% for duel in duels %}
             {% if duel.round == 1 %}
-              {% if duel.winner.id == duel.player1.id %}
-                <li value="{{duel.player1.id}}" class="team winner team-top">{{duel.player1.username}}<span class="score"></span></li>
-                <li value="{{duel.player2.id}}" class="team loser team-bottom">{{duel.player2.username}}<span class="score"></span></li>
-              {% elif duel.winner.id == duel.player2.id %}
-                <li value="{{duel.player1.id}}" class="team loser team-top">{{duel.player1.username}}<span class="score"></span></li>
-                <li value="{{duel.player2.id}}" class="team winner team-bottom">{{duel.player2.username}}<span
-                    class="score"></span></li>
-              {% else %}
-                <li value="{{duel.player1.id}}" class="team team-top"><a
-                    href="{{duel.id}}/{{duel.player1.id}}/set_winner">{{duel.player1.username}}</a><span class="score"></span></li>
-                <li value="{{duel.player2.id}}" class="team team-bottom"><a
-                    href="{{duel.id}}/{{duel.player2.id}}/set_winner">{{duel.player2.username}}</a><span class="score"></span>
-              {% endif %}
-            {% endif %}
-          </ul>
-        {% endfor %}
-      </div>
-      <div class="round round-two current">
-        <div class="round-details">Round 2<br/><span class="date">{{tournament.start_date}}</span></div>     
-        {% for duel in duels %}
-          {% if duel.round == 2 %}
-            <ul class="matchup">
-              {% if duel.winner.id == duel.player1.id %}
-                <li value="{{duel.player1.id}}" class="team winner team-top">{{duel.player1.username}}<span class="score"></span></li>
-                <li value="{{duel.player2.id}}" class="team loser team-bottom">{{duel.player2.username}}<span class="score"></span>
-                </li>
-              {% elif duel.winner.id == duel.player2.id %}
-                <li value="{{duel.player1.id}}" class="team loser team-top">{{duel.player1.username}}<span class="score"></span></li>
-                <li value="{{duel.player2.id}}" class="team winner team-bottom">{{duel.player2.username}}<span class="score"></span></li>
-              {% else %}
-                <li value="{{duel.player1.id}}" class="team team-top"><a
-                    href="{{duel.id}}/{{duel.player1.id}}/set_winner">{{duel.player1.username}}</a><span class="score"></span>
-                </li>
-                <li value="{{duel.player2.id}}" class="team team-bottom"><a
-                    href="{{duel.id}}/{{duel.player2.id}}/set_winner">{{duel.player2.username}}</a><span class="score"></span>
-              {% endif %}
-            </ul>
-          {% endif %}
-        {% endfor %}                   
-      </div>
-      {% if tournament.rounds >= 3 %} 
-        <div class="round round-three current">
-          <div class="round-details">Round 3<br/><span class="date">{{tournament.start_date}}</span></div>     
-          {% for duel in duels %}
-            {% if duel.round == 3 %}
               <ul class="matchup">
                 {% if duel.winner.id == duel.player1.id %}
-                  <li value="{{duel.player1.id}}" class="team winner team-top">{{duel.player1.username}}<span class="score"></span>
-                  </li>
+                  <li value="{{duel.player1.id}}" class="team winner team-top">{{duel.player1.username}}<span class="score"></span></li>
+                  <li value="{{duel.player2.id}}" class="team loser team-bottom">{{duel.player2.username}}<span class="score"></span></li>
+                {% elif duel.winner.id == duel.player2.id %}
+                  <li value="{{duel.player1.id}}" class="team loser team-top">{{duel.player1.username}}<span class="score"></span></li>
+                  <li value="{{duel.player2.id}}" class="team winner team-bottom">{{duel.player2.username}}<span
+                      class="score"></span></li>
+                {% else %}
+                  <li value="{{duel.player1.id}}" class="team team-top"><a
+                      href="{{duel.id}}/{{duel.player1.id}}/set_winner">{{duel.player1.username}}</a><span class="score"></span></li>
+                  <li value="{{duel.player2.id}}" class="team team-bottom"><a
+                      href="{{duel.id}}/{{duel.player2.id}}/set_winner">{{duel.player2.username}}</a><span class="score"></span>
+                {% endif %}
+              </ul>
+            {% endif %}
+          {% endfor %}
+        </div>
+        <div class="round round-two current">
+          <div class="round-details">Round 2<br/><span class="date">{{tournament.start_date}}</span></div>     
+          {% for duel in duels %}
+            {% if duel.round == 2 %}
+              <ul class="matchup">
+                {% if duel.winner.id == duel.player1.id %}
+                  <li value="{{duel.player1.id}}" class="team winner team-top">{{duel.player1.username}}<span class="score"></span></li>
                   <li value="{{duel.player2.id}}" class="team loser team-bottom">{{duel.player2.username}}<span class="score"></span>
                   </li>
                 {% elif duel.winner.id == duel.player2.id %}
-                  <li value="{{duel.player1.id}}" class="team loser team-top">{{duel.player1.username}}<span class="score"></span>
-                  </li>
-                  <li value="{{duel.player2.id}}" class="team winner team-bottom">{{duel.player2.username}}<span
-                      class="score"></span>
-                  </li>
+                  <li value="{{duel.player1.id}}" class="team loser team-top">{{duel.player1.username}}<span class="score"></span></li>
+                  <li value="{{duel.player2.id}}" class="team winner team-bottom">{{duel.player2.username}}<span class="score"></span></li>
                 {% else %}
                   <li value="{{duel.player1.id}}" class="team team-top"><a
                       href="{{duel.id}}/{{duel.player1.id}}/set_winner">{{duel.player1.username}}</a><span class="score"></span>
@@ -102,37 +73,70 @@
             {% endif %}
           {% endfor %}                   
         </div>
-      {% endif %}
-      {% if tournament.rounds >= 4 %} 
-        <div class="round round-four current">
-          <div class="round-details">Round 4<br/><span class="date">{{tournament.start_date}}</span></div>     
-          {% for duel in duels %}
-            {% if duel.round == 4 %}
-              <ul class="matchup">
-                {% if duel.winner.id == duel.player1.id %}
-                  <li value="{{duel.player1.id}}" class="team winner team-top">{{duel.player1.username}}<span class="score"></span>
-                  </li>
-                  <li value="{{duel.player2.id}}" class="team loser team-bottom">{{duel.player2.username}}<span class="score"></span>
-                  </li>
-                {% elif duel.winner.id == duel.player2.id %}
-                  <li value="{{duel.player1.id}}" class="team loser team-top">{{duel.player1.username}}<span class="score"></span>
-                  </li>
-                  <li value="{{duel.player2.id}}" class="team winner team-bottom">{{duel.player2.username}}<span
-                      class="score"></span>
-                  </li>
-                {% else %}
-                  <li value="{{duel.player1.id}}" class="team team-top"><a
-                      href="{{duel.id}}/{{duel.player1.id}}/set_winner">{{duel.player1.username}}</a><span class="score"></span>
-                  </li>
-                  <li value="{{duel.player2.id}}" class="team team-bottom"><a
-                      href="{{duel.id}}/{{duel.player2.id}}/set_winner">{{duel.player2.username}}</a><span class="score"></span>
-                {% endif %}
-              </ul>
-            {% endif %}
-          {% endfor %}                   
-        </div>
-      {% endif %}    
+        {% if tournament.rounds >= 3 %} 
+          <div class="round round-three current">
+            <div class="round-details">Round 3<br/><span class="date">{{tournament.start_date}}</span></div>     
+            {% for duel in duels %}
+              {% if duel.round == 3 %}
+                <ul class="matchup">
+                  {% if duel.winner.id == duel.player1.id %}
+                    <li value="{{duel.player1.id}}" class="team winner team-top">{{duel.player1.username}}<span class="score"></span>
+                    </li>
+                    <li value="{{duel.player2.id}}" class="team loser team-bottom">{{duel.player2.username}}<span class="score"></span>
+                    </li>
+                  {% elif duel.winner.id == duel.player2.id %}
+                    <li value="{{duel.player1.id}}" class="team loser team-top">{{duel.player1.username}}<span class="score"></span>
+                    </li>
+                    <li value="{{duel.player2.id}}" class="team winner team-bottom">{{duel.player2.username}}<span
+                        class="score"></span>
+                    </li>
+                  {% else %}
+                    <li value="{{duel.player1.id}}" class="team team-top"><a
+                        href="{{duel.id}}/{{duel.player1.id}}/set_winner">{{duel.player1.username}}</a><span class="score"></span>
+                    </li>
+                    <li value="{{duel.player2.id}}" class="team team-bottom"><a
+                        href="{{duel.id}}/{{duel.player2.id}}/set_winner">{{duel.player2.username}}</a><span class="score"></span>
+                  {% endif %}
+                </ul>
+              {% endif %}
+            {% endfor %}                   
+          </div>
+        {% endif %}
+        {% if tournament.rounds >= 4 %} 
+          <div class="round round-four current">
+            <div class="round-details">Round 4<br/><span class="date">{{tournament.start_date}}</span></div>     
+            {% for duel in duels %}
+              {% if duel.round == 4 %}
+                <ul class="matchup">
+                  {% if duel.winner.id == duel.player1.id %}
+                    <li value="{{duel.player1.id}}" class="team winner team-top">{{duel.player1.username}}<span class="score"></span>
+                    </li>
+                    <li value="{{duel.player2.id}}" class="team loser team-bottom">{{duel.player2.username}}<span class="score"></span>
+                    </li>
+                  {% elif duel.winner.id == duel.player2.id %}
+                    <li value="{{duel.player1.id}}" class="team loser team-top">{{duel.player1.username}}<span class="score"></span>
+                    </li>
+                    <li value="{{duel.player2.id}}" class="team winner team-bottom">{{duel.player2.username}}<span
+                        class="score"></span>
+                    </li>
+                  {% else %}
+                    <li value="{{duel.player1.id}}" class="team team-top"><a
+                        href="{{duel.id}}/{{duel.player1.id}}/set_winner">{{duel.player1.username}}</a><span class="score"></span>
+                    </li>
+                    <li value="{{duel.player2.id}}" class="team team-bottom"><a
+                        href="{{duel.id}}/{{duel.player2.id}}/set_winner">{{duel.player2.username}}</a><span class="score"></span>
+                  {% endif %}
+                </ul>
+              {% endif %}
+            {% endfor %}                   
+          </div>
+        {% endif %}  
     </div>  
+  </div>
+</section>
+<section class="share">
+  <div class="share-wrap">
+    <a class="share-icon" href="https://github.com/Skylighty"><i class="fa fa-github"></i></a>
   </div>
 </section>
 {% endblock %}

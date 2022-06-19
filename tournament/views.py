@@ -71,7 +71,8 @@ def create_tournament(request):
     user = get_object_or_404(User, pk=request.user.id)
     form = TournamentForm(initial={
                 "belongs_to":user,
-                "start_date": timezone.now()
+                "start_date": timezone.now(),
+                "started": False,
                 })
     return render(request=request, template_name="tournament/create_tournament.html", context={"create_tournament_form":form})
 
@@ -127,49 +128,60 @@ def delete_tournament(request, tournament_id):
 @login_required
 def generate_duels(request, tournament_id):
     tournament = get_object_or_404(Tournament, pk=tournament_id)
+    player_count = len(list(tournament.players.all()))
+    if player_count == tournament.max_players:
     # ---- INITIALIZE ------
-    if not Duel.objects.filter(tournament=tournament):
-        # Convert QuerySet to list, so query doesn't db-level sort
-        # everytime it's accessed
-        random_players = list(tournament.players.order_by('?'))
-        starting_duels_no = int(tournament.max_players/2)
-        # Initialize random and unique starting duels 
-        for i in range(0, (2*starting_duels_no), 2):
-            temp = Duel.objects.create(tournament=tournament,
-                player1=random_players[i],
-                player2=random_players[i+1],
-                max_rounds=starting_duels_no,
-                passed=False,
-                round=int(1))
-            temp.save()
-            temp.players.add(random_players[i],random_players[i+1])
-            temp.save()
-        duels = list(Duel.objects.filter(tournament=tournament))
-        for i in range(len(duels)):
-            if i % 2 == 0:
-                duels[i].paired = duels[i+1]
-                duels[i+1].paired = duels[i]
-                duels[i].save()
-                duels[i+1].save()
-        tournament.rounds = log2(tournament.max_players)
-        tournament.current_round = 1
-        tournament.save()
+        if not Duel.objects.filter(tournament=tournament):
+            # Convert QuerySet to list, so query doesn't db-level sort
+            # everytime it's accessed
+            random_players = list(tournament.players.order_by('?'))
+            starting_duels_no = int(tournament.max_players/2)
+            # Initialize random and unique starting duels 
+            for i in range(0, (2*starting_duels_no), 2):
+                temp = Duel.objects.create(tournament=tournament,
+                    player1=random_players[i],
+                    player2=random_players[i+1],
+                    max_rounds=starting_duels_no,
+                    passed=False,
+                    round=int(1))
+                temp.save()
+                temp.players.add(random_players[i],random_players[i+1])
+                temp.save()
+            duels = list(Duel.objects.filter(tournament=tournament))
+            for i in range(len(duels)):
+                if i % 2 == 0:
+                    duels[i].paired = duels[i+1]
+                    duels[i+1].paired = duels[i]
+                    duels[i].save()
+                    duels[i+1].save()
+            tournament.rounds = log2(tournament.max_players)
+            tournament.started = True
+            tournament.current_round = 1
+            tournament.save()
+        else:
+            for i in range(1, int(tournament.rounds-1)):
+                # If there's no duel with no winner
+                # there is a duel/duels in this round
+                # if there is not duel/duels in next round 
+                print('No duel with winner - ' + str(Duel.objects.filter(tournament=tournament, round=i).filter(winner=None).exists()))
+                print('duel in this round - ' + str(Duel.objects.filter(tournament=tournament, round=i).exists()))
+                print('duel in next round - ' + str(Duel.objects.filter(tournament=tournament, round=(i+1)).exists()))
+                if (Duel.objects.filter(tournament=tournament, round=i).filter(winner=None).exists() == False
+                    and Duel.objects.filter(tournament=tournament, round=i).exists() == True
+                    and Duel.objects.filter(tournament=tournament, round=(i+1)).exists() == False):
+                    return redirect(f'/{tournament.id}/{i+1}/update_round')
+          
+        duels = Duel.objects.filter(tournament=tournament)
+        # TODO - iterative viewing on rounds
+        #if Duel.objects.filter(tournament=tournament, round=1):
+        context = {
+            "tournament": tournament,
+            "duels": duels,
+        }
+        return render(request=request, template_name='tournament/tournament_view.html', context=context)
     else:
-        for i in range(1, int(tournament.rounds-1)):
-            if (Duel.objects.filter(tournament=tournament, round=i).filter(winner=None).exists() is False
-                and Duel.objects.filter(tournament=tournament, round=i).exists() is True
-                and Duel.objects.filter(tournament=tournament, round=(i+1)).exists() is False):
-                return redirect(f'/{tournament.id}/{i+1}/update_round')
-            else:
-                continue            
-    duels = Duel.objects.filter(tournament=tournament)
-    # TODO - iterative viewing on rounds
-    #if Duel.objects.filter(tournament=tournament, round=1):
-    context = {
-        "tournament": tournament,
-        "duels": duels,
-    }
-    return render(request=request, template_name='tournament/tournament_view.html', context=context)
+        messages.error(request, f'You can\'t start tournament \'{tournament.name}\' - not all players are assigned to it!')
+        return redirect("/manage")
 
 
 @login_required
@@ -198,6 +210,7 @@ def update_round(request, tournament_id, round_to_be_updated):
             new_duel.previous.add(duel.paired)
             new_duel.save()
     duels = list(Duel.objects.filter(tournament=tournament, round=round_to_be_updated))
+    # Pairing duels for further updates
     for i in range(len(duels)):
         if i % 2 == 0 and len(duels) > 1:
                 duels[i].paired = duels[i+1]
@@ -225,66 +238,73 @@ def set_duel_winner(request, tournament_id, duel_id, user_id):
 def edit_tournament(request,tournament_id):
     tournament = get_object_or_404(Tournament, pk=tournament_id)
     tournament.players.clear()
-    q2 = User.objects.all()
-    if request.method == "POST":
-        if request.user.is_authenticated:
-            form = EditTournamentForm(request.POST, instance=tournament)
-            if form.is_valid():
-                form.save()
-                messages.success(request, f'Tournament {form.cleaned_data.get("name")} has been saved successfully!')
-                return redirect("/manage")
-            else:
-                messages.error(request, "Something is wrong!")
-                messages.error(request,str(form.errors))
-    #user = User.get_object_or_404(pk=request.user.id)
-    print(getattr(tournament, "max_players"))
-    form = EditTournamentForm(initial={
-                "start_date": getattr(tournament, "start_date"),
-                "max_players": getattr(tournament, "max_players"),
-                "belongs_to": getattr(tournament, "belongs_to"),
-                "name": getattr(tournament, "name"),
-                "players": tournament.players.all()
-                })
-    context = {
-        "tournament": tournament,
-        "users": q2,
-        "edit_form": form,
-    }
-    return render(request=request, template_name="tournament/edit.html", context=context)
+    if tournament.started is False:
+        q2 = User.objects.all()
+        if request.method == "POST":
+            if request.user.is_authenticated:
+                form = EditTournamentForm(request.POST, instance=tournament)
+                if form.is_valid():
+                    form.save()
+                    messages.success(request, f'Tournament {form.cleaned_data.get("name")} has been saved successfully!')
+                    return redirect("/manage")
+                else:
+                    messages.error(request, "Something is wrong!")
+                    messages.error(request,str(form.errors))
+        #user = User.get_object_or_404(pk=request.user.id)
+        print(getattr(tournament, "max_players"))
+        form = EditTournamentForm(initial={
+                    "start_date": getattr(tournament, "start_date"),
+                    "max_players": getattr(tournament, "max_players"),
+                    "belongs_to": getattr(tournament, "belongs_to"),
+                    "name": getattr(tournament, "name"),
+                    "players": tournament.players.all()
+                    })
+        context = {
+            "tournament": tournament,
+            "users": q2,
+            "edit_form": form,
+        }
+        return render(request=request, template_name="tournament/edit.html", context=context)
+    else:
+        messages.error(request, f'You cannot edit {tournament.name}. It has already begun!')
+        return redirect('/index')
 
 
 @login_required
 def manage_players(request, tournament_id):
     tournament = get_object_or_404(Tournament, pk=tournament_id)
-    #tid = str(tournament.id)
-    users = User.objects.all()
-    players = tournament.players.all()
-    if request.method == "POST" and "add" in request.POST:
-        if request.user.is_authenticated:
-            added_user_id = request.POST.get("user")
-            tournament.players.add(get_object_or_404(User, pk=added_user_id))
-            tournament.save()
-            messages.success(request, f"User {get_object_or_404(User,pk=added_user_id).username} sucessfully added to tournament {tournament.name}!")
-            #return redirect(request, f"{tid}/add_player")     
-        else:
-            messages.error(request, "User not authenticated!")
-            return redirect(f'/{tournament_id}/players')
-    if request.method == "POST" and "remove" in request.POST:
-        if request.user.is_authenticated:
-            added_user_id = request.POST.get("user")
-            tournament.players.remove(get_object_or_404(User, pk=added_user_id))
-            tournament.save()
-            messages.success(request, f"User {get_object_or_404(User,pk=added_user_id).username} removed from tournament {tournament.name}!")
-            #return redirect(request, f"{tid}/add_player")     
-        else:
-            messages.error(request, "User not authenticated!")
-            return redirect(f'/{tournament_id}/players')
-    context = {
-        "tournament": tournament,
-        "users": users,
-        "players": players,
-    }
-    return render(request=request, template_name="tournament/manage_players.html", context=context)
+    if tournament.started is False: 
+        users = User.objects.all()
+        players = tournament.players.all()
+        if request.method == "POST" and "add" in request.POST:
+            if request.user.is_authenticated:
+                added_user_id = request.POST.get("user")
+                tournament.players.add(get_object_or_404(User, pk=added_user_id))
+                tournament.save()
+                messages.success(request, f"User {get_object_or_404(User,pk=added_user_id).username} sucessfully added to tournament {tournament.name}!")
+                #return redirect(request, f"{tid}/add_player")     
+            else:
+                messages.error(request, "User not authenticated!")
+                return redirect(f'/{tournament_id}/players')
+        if request.method == "POST" and "remove" in request.POST:
+            if request.user.is_authenticated:
+                added_user_id = request.POST.get("user")
+                tournament.players.remove(get_object_or_404(User, pk=added_user_id))
+                tournament.save()
+                messages.success(request, f"User {get_object_or_404(User,pk=added_user_id).username} removed from tournament {tournament.name}!")
+                #return redirect(request, f"{tid}/add_player")     
+            else:
+                messages.error(request, "User not authenticated!")
+                return redirect(f'/{tournament_id}/players')
+        context = {
+            "tournament": tournament,
+            "users": users,
+            "players": players,
+        }
+        return render(request=request, template_name="tournament/manage_players.html", context=context)
+    else:
+        messages.error(request, f'You cannot edit {tournament.name}. It has already begun!')
+        return redirect('/index')
 
 
 def index(request):

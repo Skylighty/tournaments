@@ -1,6 +1,14 @@
 {% extends 'tournament/index.html' %}
 
 {% block content %}
+<header>
+  <p style="font-size: 20px; font-weight: bold; color: red; text-align: center; margin-top: 15px">Start tournament only if player slots are fully filled! e.g 16/16</p>
+</header>
+    <style>
+      table, td, th {
+        text-align: center;
+      }
+    </style>
     <div>
         <table class="table align-middle mb-0 bg-white">
             <thead class="bg-light">
@@ -50,17 +58,18 @@
                         <a href="{{tournament.id}}/generate">View</a>
                       </button>
                         {% if tournament.belongs_to.username == user.get_username %}
-                          <button type="button"
-                            class="btn btn-link btn-rounded btn-sm fw-bold"
-                            data-mdb-ripple-color="dark">
-                            <a href="{{tournament.id}}/edit">Edit</a>
-                          </button>
-                          <button type="button"
-                                class="btn btn-link btn-rounded btn-sm fw-bold"
-                                data-mdb-ripple-color="dark">
-                            <a href="{{tournament.id}}/players">Players</a>
-                          </button>
-
+                          {% if tournament.started == False %}
+                            <button type="button"
+                              class="btn btn-link btn-rounded btn-sm fw-bold"
+                              data-mdb-ripple-color="dark">
+                              <a href="{{tournament.id}}/edit">Edit</a>
+                            </button>
+                            <button type="button"
+                                  class="btn btn-link btn-rounded btn-sm fw-bold"
+                                  data-mdb-ripple-color="dark">
+                              <a href="{{tournament.id}}/players">Players</a>
+                            </button>
+                          {% endif %}
                           <button type="button"
                                 class="btn btn-link btn-rounded btn-sm fw-bold"
                                 data-mdb-ripple-color="dark">
