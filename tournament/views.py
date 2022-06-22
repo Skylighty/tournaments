@@ -11,6 +11,7 @@ from django.contrib.auth.models import User
 from django.contrib.auth.forms import AuthenticationForm
 
 
+# ================== USER RELATED =======================
 def register_request(request):
     """Handle the registration request
     render empty form if no POST"""
@@ -49,11 +50,15 @@ def login_request(request):
 
 @login_required
 def logout_request(request):
+    """Handle the user logout request"""
     logout(request)
     messages.info(request, "You have successfully logged out.")
     return redirect('/index')
 
+# ===========================================================
 
+
+# ================== TOURNAMENT RELATED =======================
 @login_required
 def create_tournament(request):
     """Handle tournament creation,
@@ -129,65 +134,71 @@ def delete_tournament(request, tournament_id):
 def generate_duels(request, tournament_id):
     tournament = get_object_or_404(Tournament, pk=tournament_id)
     player_count = len(list(tournament.players.all()))
-    if player_count == tournament.max_players:
-    # ---- INITIALIZE ------
-        if Duel.objects.filter(tournament=tournament).exists() == False:
-            # Convert QuerySet to list, so query doesn't db-level sort
-            # everytime it's accessed
-            random_players = list(tournament.players.order_by('?'))
-            starting_duels_no = int(tournament.max_players/2)
-            # Initialize random and unique starting duels 
-            for i in range(0, (2*starting_duels_no), 2):
-                temp = Duel.objects.create(tournament=tournament,
-                    player1=random_players[i],
-                    player2=random_players[i+1],
-                    max_rounds=starting_duels_no,
-                    passed=False,
-                    round=int(1))
-                temp.save()
-                temp.players.add(random_players[i],random_players[i+1])
-                temp.save()
-            duels = list(Duel.objects.filter(tournament=tournament))
-            for i in range(len(duels)):
-                if i % 2 == 0:
-                    duels[i].paired = duels[i+1]
-                    duels[i+1].paired = duels[i]
-                    duels[i].save()
-                    duels[i+1].save()
-            tournament.rounds = log2(tournament.max_players)
-            tournament.started = True
-            tournament.current_round = 1
-            tournament.save()
+    if request.user.is_authenticated:
+        if player_count == tournament.max_players:
+        # ---- INITIALIZE ------
+            if Duel.objects.filter(tournament=tournament).exists() == False:
+                # Convert QuerySet to list, so query doesn't db-level sort
+                # everytime it's accessed
+                random_players = list(tournament.players.order_by('?'))
+                starting_duels_no = int(tournament.max_players/2)
+                # Initialize random and unique starting duels 
+                for i in range(0, (2*starting_duels_no), 2):
+                    temp = Duel.objects.create(tournament=tournament,
+                        player1=random_players[i],
+                        player2=random_players[i+1],
+                        max_rounds=starting_duels_no,
+                        passed=False,
+                        round=int(1))
+                    temp.save()
+                    temp.players.add(random_players[i],random_players[i+1])
+                    temp.save()
+                duels = list(Duel.objects.filter(tournament=tournament))
+                for i in range(len(duels)):
+                    if i % 2 == 0:
+                        duels[i].paired = duels[i+1]
+                        duels[i+1].paired = duels[i]
+                        duels[i].save()
+                        duels[i+1].save()
+                tournament.rounds = log2(tournament.max_players)
+                tournament.started = True
+                tournament.current_round = 1
+                tournament.save()
+            else:
+                # for i in range(1, int(tournament.rounds-1)):
+                #     # If there's no duel with no winner
+                #     # there is a duel/duels in this round
+                #     # if there is not duel/duels in next round 
+                print('There is a duel in set up without winner - ' + str(Duel.objects.filter(tournament=tournament, round=tournament.current_round).filter(winner=None).exists()))
+                print('Duel in this round exists - ' + str(Duel.objects.filter(tournament=tournament, round=tournament.current_round).exists()))
+                print('duel in next round exists - ' + str(Duel.objects.filter(tournament=tournament, round=(tournament.current_round+1)).exists()))
+                if (Duel.objects.filter(tournament=tournament, round=tournament.current_round).filter(winner=None).exists() == False
+                    and Duel.objects.filter(tournament=tournament, round=tournament.current_round).exists() == True
+                    and Duel.objects.filter(tournament=tournament, round=tournament.current_round+1).exists() == False):
+                    if (tournament.current_round != tournament.rounds):
+                        return redirect(f'/{tournament.id}/{tournament.current_round+1}/update_round')
+                    else:
+                        pass
+                # else:
+                #     continue
+            
+            duels = Duel.objects.filter(tournament=tournament)
+            # TODO - iterative viewing on rounds
+            #if Duel.objects.filter(tournament=tournament, round=1):
+            context = {
+                "tournament": tournament,
+                "duels": duels,
+            }
+            return render(request=request, template_name='tournament/tournament_view.html', context=context)
         else:
-            # for i in range(1, int(tournament.rounds-1)):
-            #     # If there's no duel with no winner
-            #     # there is a duel/duels in this round
-            #     # if there is not duel/duels in next round 
-            print('There is a duel in set up without winner - ' + str(Duel.objects.filter(tournament=tournament, round=tournament.current_round).filter(winner=None).exists()))
-            print('Duel in this round exists - ' + str(Duel.objects.filter(tournament=tournament, round=tournament.current_round).exists()))
-            print('duel in next round exists - ' + str(Duel.objects.filter(tournament=tournament, round=(tournament.current_round+1)).exists()))
-            if (Duel.objects.filter(tournament=tournament, round=tournament.current_round).filter(winner=None).exists() == False
-                and Duel.objects.filter(tournament=tournament, round=tournament.current_round).exists() == True
-                and Duel.objects.filter(tournament=tournament, round=tournament.current_round+1).exists() == False):
-                if (tournament.current_round != tournament.rounds):
-                    return redirect(f'/{tournament.id}/{tournament.current_round+1}/update_round')
-                else:
-                    pass
-            # else:
-            #     continue
-          
-        duels = Duel.objects.filter(tournament=tournament)
-        # TODO - iterative viewing on rounds
-        #if Duel.objects.filter(tournament=tournament, round=1):
-        context = {
-            "tournament": tournament,
-            "duels": duels,
-        }
-        return render(request=request, template_name='tournament/tournament_view.html', context=context)
+            messages.error(request, f'You can\'t start tournament \'{tournament.name}\' - not all players are assigned to it!')
+            return redirect("/manage")
     else:
-        messages.error(request, f'You can\'t start tournament \'{tournament.name}\' - not all players are assigned to it!')
-        return redirect("/manage")
-
+        try:
+            return render(request=request, template_name='tournament/tournament_view.html', context=context)
+        except:
+            messages.error("Sorry, You are not logged in!")
+            
 
 @login_required
 def update_round(request, tournament_id, round_to_be_updated):
@@ -313,5 +324,5 @@ def manage_players(request, tournament_id):
 
 
 def index(request):
-    return render(request, "tournament/index.html")
+    return render(request, "tournament/login.html")
 # Create your views here.
