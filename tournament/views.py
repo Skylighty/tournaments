@@ -131,7 +131,7 @@ def generate_duels(request, tournament_id):
     player_count = len(list(tournament.players.all()))
     if player_count == tournament.max_players:
     # ---- INITIALIZE ------
-        if not Duel.objects.filter(tournament=tournament):
+        if Duel.objects.filter(tournament=tournament).exists() == False:
             # Convert QuerySet to list, so query doesn't db-level sort
             # everytime it's accessed
             random_players = list(tournament.players.order_by('?'))
@@ -159,17 +159,22 @@ def generate_duels(request, tournament_id):
             tournament.current_round = 1
             tournament.save()
         else:
-            for i in range(1, int(tournament.rounds-1)):
-                # If there's no duel with no winner
-                # there is a duel/duels in this round
-                # if there is not duel/duels in next round 
-                print('No duel with winner - ' + str(Duel.objects.filter(tournament=tournament, round=i).filter(winner=None).exists()))
-                print('duel in this round - ' + str(Duel.objects.filter(tournament=tournament, round=i).exists()))
-                print('duel in next round - ' + str(Duel.objects.filter(tournament=tournament, round=(i+1)).exists()))
-                if (Duel.objects.filter(tournament=tournament, round=i).filter(winner=None).exists() == False
-                    and Duel.objects.filter(tournament=tournament, round=i).exists() == True
-                    and Duel.objects.filter(tournament=tournament, round=(i+1)).exists() == False):
-                    return redirect(f'/{tournament.id}/{i+1}/update_round')
+            # for i in range(1, int(tournament.rounds-1)):
+            #     # If there's no duel with no winner
+            #     # there is a duel/duels in this round
+            #     # if there is not duel/duels in next round 
+            print('There is a duel in set up without winner - ' + str(Duel.objects.filter(tournament=tournament, round=tournament.current_round).filter(winner=None).exists()))
+            print('Duel in this round exists - ' + str(Duel.objects.filter(tournament=tournament, round=tournament.current_round).exists()))
+            print('duel in next round exists - ' + str(Duel.objects.filter(tournament=tournament, round=(tournament.current_round+1)).exists()))
+            if (Duel.objects.filter(tournament=tournament, round=tournament.current_round).filter(winner=None).exists() == False
+                and Duel.objects.filter(tournament=tournament, round=tournament.current_round).exists() == True
+                and Duel.objects.filter(tournament=tournament, round=tournament.current_round+1).exists() == False):
+                if (tournament.current_round != tournament.rounds):
+                    return redirect(f'/{tournament.id}/{tournament.current_round+1}/update_round')
+                else:
+                    pass
+            # else:
+            #     continue
           
         duels = Duel.objects.filter(tournament=tournament)
         # TODO - iterative viewing on rounds
