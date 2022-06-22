@@ -59,12 +59,20 @@
                         <a href="{{tournament.id}}/generate">View</a>
                       </button>
                       {% else %}
-                      <button type="button"
-                              class="btn btn-link btn-rounded btn-sm fw-bold"
-                              data-mdb-ripple-color="dark"
-                              disabled>
-                        <p>Tournament not started!</p>
-                      </button>
+                        {% if tournament.started == False %}
+                          <button type="button"
+                                  class="btn btn-link btn-rounded btn-sm fw-bold"
+                                  data-mdb-ripple-color="dark"
+                                  disabled>
+                            <p>Tournament not started!</p>
+                          </button>
+                        {% else %}
+                          <button type="button"
+                                  class="btn btn-link btn-rounded btn-sm fw-bold"
+                                  data-mdb-ripple-color="dark">
+                            <a href="{{tournament.id}}/anonview">View</a>
+                </button>
+                        {% endif %}
                       {% endif %}
                         {% if tournament.belongs_to.username == user.get_username %}
                           {% if tournament.started == False %}
