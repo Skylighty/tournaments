@@ -347,16 +347,20 @@ def manage_players(request, tournament_id):
 
 
 def create_test_users(request):
-    for i in range(16):
-        new_user = User.objects.create_user(
-            f'user{i}',
-            password='test'
-        )
-        new_user.is_superuser = False
-        new_user.is_staff = False
-        new_user.save()
-    messages.success(request, 'Created 16 users for test purposes')
-    return redirect('/')
+    if not User.objects.filter(username='user0').exists():
+        for i in range(16):
+            new_user = User.objects.create_user(
+                f'user{i}',
+                password='test'
+            )
+            new_user.is_superuser = False
+            new_user.is_staff = False
+            new_user.save()
+        messages.success(request, 'Created 16 users for test purposes')
+        return redirect('/')
+    else:
+        messages.info('Test users already exist.')
+        return redirect('/')
 
 
 def index(request):
