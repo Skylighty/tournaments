@@ -5,13 +5,6 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.core.validators import MaxValueValidator, MinValueValidator
 
-class Player(models.Model):
-    """Player object that's related to Users in Django"""
-    user = models.OneToOneField(User, on_delete=models.CASCADE, blank=True)
-    name = models.CharField(max_length=150, null=True)
-
-    def __str__(self):
-        return str(self.name)
 
 class Tournament(models.Model):
     """Tournament object that is related ForeignKey to owner,

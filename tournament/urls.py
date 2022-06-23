@@ -4,6 +4,12 @@ from . import views
 app_name = "main"   
 
 
+"""
+All of the HTML files are written in HTML/CSS with usage of Django templates.
+Some files include external JS for displaying purposes, however no active scripts are included.
+CSS files are served as static part, intergrated in Django 'static' template, same for the logo image.
+"""
+
 urlpatterns = [
     path("", views.login_request, name="index"),
     path("register", views.register_request, name="register"),

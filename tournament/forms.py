@@ -22,8 +22,9 @@ class NewUserForm(UserCreationForm):
             user.save()
         return user
 
-#TODO - validate if Player.count <= max_players
+
 class TournamentForm(forms.ModelForm):
+    """Create tournament form basing on model"""
     class Meta:
         model = Tournament
         fields = ['name',
@@ -47,6 +48,7 @@ class TournamentForm(forms.ModelForm):
         
         
 class EditTournamentForm(forms.ModelForm):
+    """Edit tournament form basing on model"""
     class Meta:
         model = Tournament
         fields = ['name',

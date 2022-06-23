@@ -83,37 +83,8 @@ def create_tournament(request):
 
 
 @login_required
-def manage_tournaments(request):
-    """Handle redirection to tournament management"""
-    #if request.user.is_authenticated:
-    q1 = Tournament.objects.all()
-    context = {
-        "user_tournament_list": q1
-    }
-    return render(request=request, template_name="tournament/manage.html", context=context)
-    # else:
-    #     messages.error(request, "Only Users can manage their tournaments!")
-    #     return redirect('/index')
-    
-
-def all_tournaments_view(request):
-    q1 = Tournament.objects.all()
-    context = {
-        "all_tournaments": q1
-    }
-    return render(request=request, template_name="tournament/listview.html", context=context)
-
-
-def tournament_view(request, tournament_id):
-    q1 = Tournament.objects.filter(pk=tournament_id)
-    context = {
-        "tournament" : q1,
-    }
-    return render(request=request, template_name="tournament/tournament_view.html", context=context)
-
-
-@login_required
 def delete_tournament(request, tournament_id):
+    """Simply - delete the tournament form"""
     tournament = get_object_or_404(Tournament, pk=tournament_id)
     temp_name = tournament.name
     if request.user.is_authenticated:
@@ -128,10 +99,51 @@ def delete_tournament(request, tournament_id):
         messages.error(request, "This is not your tournament!")
         return render(request=request, template_name="tournament/manage.html")
 
+@login_required
+def manage_tournaments(request):
+    """Handle redirection to tournament management"""
+    #if request.user.is_authenticated:
+    q1 = Tournament.objects.all()
+    context = {
+        "user_tournament_list": q1
+    }
+    return render(request=request, template_name="tournament/manage.html", context=context)
+    # else:
+    #     messages.error(request, "Only Users can manage their tournaments!")
+    #     return redirect('/index')
+    
+
+def all_tournaments_view(request):
+    """View all tournaments for any user (anon included!)"""
+    q1 = Tournament.objects.all()
+    context = {
+        "all_tournaments": q1
+    }
+    return render(request=request, template_name="tournament/listview.html", context=context)
+
+
+def tournament_view(request, tournament_id):
+    """View particular duel details for any user (anon included!)"""
+    q1 = Tournament.objects.filter(pk=tournament_id)
+    context = {
+        "tournament" : q1,
+    }
+    return render(request=request, template_name="tournament/tournament_view.html", context=context)
+
+
+
+
 
 # RANDOM ELEMENT! MyModel.objects.order_by('?').first()
 @login_required
 def generate_duels(request, tournament_id):
+    """Generates duel structure for the tournament passed.
+    If there are no duels and user authenticated -
+    - randomly initiates starting duels.
+    Then if player count > 2 and if in line 174 returns True
+    redirects to update_round so new duels in the tournament
+    get initialized based on previous duels.
+    """
     tournament = get_object_or_404(Tournament, pk=tournament_id)
     player_count = len(list(tournament.players.all()))
     tournament.started = True
@@ -155,7 +167,8 @@ def generate_duels(request, tournament_id):
                     temp.players.add(random_players[i],random_players[i+1])
                     temp.save()
                 duels = list(Duel.objects.filter(tournament=tournament))
-                if len(list(tournament.players.all())) <= tournament.rounds:
+                print(len(list(tournament.players.all())))
+                if len(list(tournament.players.all())) > 2:
                     for i in range(len(duels)):
                         if i % 2 == 0:
                             duels[i].paired = duels[i+1]
@@ -195,6 +208,7 @@ def generate_duels(request, tournament_id):
 
 
 def anon_view(request, tournament_id):
+    """View particular tournament details for anon user"""
     tournament = get_object_or_404(Tournament, pk=tournament_id)
     duels = Duel.objects.filter(tournament=tournament)
     context = {
@@ -206,6 +220,8 @@ def anon_view(request, tournament_id):
 
 @login_required
 def update_round(request, tournament_id, round_to_be_updated):
+    """Increment current tournament round
+    and generate new duels basing on previously finished results"""
     tournament = get_object_or_404(Tournament, pk=tournament_id)
     tournament.current_round = round_to_be_updated
     tournament.save()
@@ -213,7 +229,7 @@ def update_round(request, tournament_id, round_to_be_updated):
     #next_round_duels_no = len(duels)/2
     #for i in range(next_round_duels_no):
     for duel in duels:
-        if duel.passed is False and duel.paired.passed is False:
+        if duel.passed is False and duel.paired and duel.paired.passed is False:
             new_duel = Duel.objects.create(tournament=tournament,
             player1=duel.winner,
             player2=duel.paired.winner,
@@ -242,6 +258,7 @@ def update_round(request, tournament_id, round_to_be_updated):
 
 @login_required
 def set_duel_winner(request, tournament_id, duel_id, user_id):
+    """Handle the request to set winner of a duel"""
     tournament = get_object_or_404(Tournament, pk=tournament_id)
     duel = get_object_or_404(Duel, pk=duel_id)
     if not duel.winner:
@@ -256,6 +273,7 @@ def set_duel_winner(request, tournament_id, duel_id, user_id):
 
 @login_required
 def edit_tournament(request,tournament_id):
+    """Edit tournament form which overwrites it's properties"""
     tournament = get_object_or_404(Tournament, pk=tournament_id)
     tournament.players.clear()
     if tournament.started is False:
@@ -292,6 +310,7 @@ def edit_tournament(request,tournament_id):
 
 @login_required
 def manage_players(request, tournament_id):
+    """Handle add/remove player for the tournament request"""
     tournament = get_object_or_404(Tournament, pk=tournament_id)
     if tournament.started is False: 
         users = User.objects.all()
@@ -328,5 +347,6 @@ def manage_players(request, tournament_id):
 
 
 def index(request):
+    """Handle the landing page rendering"""
     return render(request, "tournament/login.html")
 # Create your views here.
