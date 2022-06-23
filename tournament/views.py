@@ -347,6 +347,7 @@ def manage_players(request, tournament_id):
 
 
 def create_test_users(request):
+    """Create 16 test users so no manual form completing is required"""
     if not User.objects.filter(username='user0').exists():
         for i in range(16):
             new_user = User.objects.create_user(
@@ -356,7 +357,7 @@ def create_test_users(request):
             new_user.is_superuser = False
             new_user.is_staff = False
             new_user.save()
-        messages.success(request, 'Created 16 users for test purposes')
+        messages.success(request, 'Created 16 users for test purposes \'user0-15\':\'test\'')
         return redirect('/')
     else:
         messages.info('Test users already exist.')
