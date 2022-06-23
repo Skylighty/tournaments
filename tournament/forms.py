@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import User
-from tournament.models import Tournament, Player
+from tournament.models import Tournament
 
 # Create your forms here.
 PLAYER_COUNT_CHOICES=[tuple([x,x]) for x in [2,4,8,16]]
